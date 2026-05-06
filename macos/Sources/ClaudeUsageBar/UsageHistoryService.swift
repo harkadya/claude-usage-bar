@@ -13,11 +13,19 @@ class UsageHistoryService: ObservableObject {
     private static let retentionInterval: TimeInterval = 30 * 86400 // 30 days
     private static let flushInterval: TimeInterval = 300 // 5 minutes
 
-    private static var historyFileURL: URL {
+    private static var configDirectoryURL: URL {
         let dir = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".config/claude-usage-bar", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("history.json")
+        return dir
+    }
+
+    private static var historyFileURL: URL {
+        configDirectoryURL.appendingPathComponent("history.json")
+    }
+
+    private static var lastResponseFileURL: URL {
+        configDirectoryURL.appendingPathComponent("last-response.json")
     }
 
     init() {
@@ -123,6 +131,22 @@ class UsageHistoryService: ObservableObject {
                 pct7d: avgPct7d
             )
         }
+    }
+
+    // MARK: - Last Response Cache
+
+    func saveLastResponse(_ response: UsageResponse) {
+        guard let data = try? JSONEncoder.historyEncoder.encode(response) else { return }
+        try? data.write(to: Self.lastResponseFileURL, options: .atomic)
+    }
+
+    func loadLastResponse() -> UsageResponse? {
+        guard let data = try? Data(contentsOf: Self.lastResponseFileURL) else { return nil }
+        return try? JSONDecoder.historyDecoder.decode(UsageResponse.self, from: data)
+    }
+
+    func deleteLastResponse() {
+        try? FileManager.default.removeItem(at: Self.lastResponseFileURL)
     }
 
     // MARK: - Pruning

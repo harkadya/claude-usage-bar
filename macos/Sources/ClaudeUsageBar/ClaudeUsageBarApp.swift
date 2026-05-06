@@ -28,6 +28,7 @@ struct ClaudeUsageBarApp: App {
                     historyService.loadHistory()
                     service.historyService = historyService
                     service.notificationService = notificationService
+                    service.restoreCachedResponse()
                     service.startPolling()
                 }
         }

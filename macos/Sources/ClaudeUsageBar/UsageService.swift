@@ -100,6 +100,12 @@ class UsageService: ObservableObject {
 
     // MARK: - Polling
 
+    func restoreCachedResponse() {
+        guard isAuthenticated, usage == nil,
+              let cached = historyService?.loadLastResponse() else { return }
+        usage = cached.reconciled(with: nil)
+    }
+
     func startPolling() {
         guard isAuthenticated else { return }
         Task {
@@ -225,6 +231,7 @@ class UsageService: ObservableObject {
 
     func signOut() {
         deleteCredentials()
+        historyService?.deleteLastResponse()
         isAuthenticated = false
         usage = nil
         lastUpdated = nil
@@ -279,6 +286,7 @@ class UsageService: ObservableObject {
                 return
             }
             let decoded = try JSONDecoder().decode(UsageResponse.self, from: data)
+            historyService?.saveLastResponse(decoded)
             let reconciled = decoded.reconciled(with: usage)
             usage = reconciled
             lastError = nil
@@ -569,6 +577,7 @@ class UsageService: ObservableObject {
 
     private func expireSession() {
         deleteCredentials()
+        historyService?.deleteLastResponse()
         isAuthenticated = false
         usage = nil
         lastUpdated = nil
