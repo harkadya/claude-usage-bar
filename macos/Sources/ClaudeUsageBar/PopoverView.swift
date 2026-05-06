@@ -64,14 +64,19 @@ struct PopoverView: View {
 
     @ViewBuilder
     private var usageView: some View {
+        let extraActive = (service.usage?.extraUsage?.isEnabled == true)
+            && (service.usage?.extraUsage?.utilization ?? 0) > 0
+
         UsageBucketRow(
             label: "5-Hour Window",
-            bucket: service.usage?.fiveHour
+            bucket: service.usage?.fiveHour,
+            treatAsFull: extraActive && (service.usage?.fiveHour?.utilization ?? 0) >= 99
         )
 
         UsageBucketRow(
             label: "7-Day Window",
-            bucket: service.usage?.sevenDay
+            bucket: service.usage?.sevenDay,
+            treatAsFull: extraActive && (service.usage?.sevenDay?.utilization ?? 0) >= 99
         )
 
         if let opus = service.usage?.sevenDayOpus,
@@ -284,6 +289,11 @@ private struct CodeEntryView: View {
 private struct UsageBucketRow: View {
     let label: String
     let bucket: UsageBucket?
+    var treatAsFull: Bool = false
+
+    private var displayUtilization: Double {
+        treatAsFull ? 100.0 : (bucket?.utilization ?? 0)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -295,8 +305,8 @@ private struct UsageBucketRow: View {
                     .font(.subheadline)
                     .monospacedDigit()
             }
-            ProgressView(value: (bucket?.utilization ?? 0) / 100.0, total: 1.0)
-                .tint(colorForPct((bucket?.utilization ?? 0) / 100.0))
+            ProgressView(value: displayUtilization / 100.0, total: 1.0)
+                .tint(colorForPct(displayUtilization / 100.0))
             if let resetDate = bucket?.resetsAtDate, resetDate > Date() {
                 Text("Resets \(resetDate, style: .relative)")
                     .font(.caption2)
@@ -306,8 +316,8 @@ private struct UsageBucketRow: View {
     }
 
     private var percentageText: String {
-        guard let pct = bucket?.utilization else { return "—" }
-        return "\(Int(round(pct)))%"
+        guard bucket?.utilization != nil else { return "—" }
+        return "\(Int(round(displayUtilization)))%"
     }
 }
 

@@ -114,6 +114,21 @@ SCENARIOS = {
             "utilization": 18.68,
         },
     },
+    "extra_maxed": {
+        "five_hour": {"utilization": 99.0, "resets_at": iso_future(hours=4)},
+        "seven_day": {"utilization": 99.0, "resets_at": iso_future(days=6)},
+        "seven_day_opus": None,
+        "seven_day_sonnet": None,
+        "seven_day_oauth_apps": None,
+        "seven_day_cowork": None,
+        "iguana_necktie": None,
+        "extra_usage": {
+            "is_enabled": True,
+            "monthly_limit": 10000,
+            "used_credits": 3200,
+            "utilization": 32.0,
+        },
+    },
     "extra_high": {
         "five_hour": {"utilization": 95.0, "resets_at": iso_future(hours=1)},
         "seven_day": {"utilization": 98.0, "resets_at": iso_future(days=1)},

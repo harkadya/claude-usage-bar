@@ -69,9 +69,18 @@ class UsageService: ObservableObject {
     private var codeVerifier: String?
     private var oauthState: String?
 
-    var pct5h: Double { (usage?.fiveHour?.utilization ?? 0) / 100.0 }
-    var pct7d: Double { (usage?.sevenDay?.utilization ?? 0) / 100.0 }
+    var pct5h: Double { effectivePct(usage?.fiveHour?.utilization) }
+    var pct7d: Double { effectivePct(usage?.sevenDay?.utilization) }
     var pctExtra: Double { (usage?.extraUsage?.utilization ?? 0) / 100.0 }
+
+    private var extraIsActive: Bool {
+        (usage?.extraUsage?.isEnabled == true) && (usage?.extraUsage?.utilization ?? 0) > 0
+    }
+
+    private func effectivePct(_ utilization: Double?) -> Double {
+        let raw = (utilization ?? 0) / 100.0
+        return (extraIsActive && raw >= 0.99) ? 1.0 : raw
+    }
     var reset5h: Date? { usage?.fiveHour?.resetsAtDate }
     var reset7d: Date? { usage?.sevenDay?.resetsAtDate }
 
