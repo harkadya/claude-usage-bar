@@ -1,7 +1,16 @@
+# Swift / Xcode
 .build/
 .swiftpm/
+xcuserdata/
+*.xcuserstate
+
+# Build artifacts
+*.app/
 *.zip
 *.dmg
-*.app/
+
+# macOS
 .DS_Store
-xcuserdata/
+
+# Claude Code
+.claude/settings.local.json

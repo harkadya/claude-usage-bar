@@ -45,6 +45,24 @@ final class UsageModelTests: XCTestCase {
         XCTAssertEqual(reconciled.fiveHour?.resetsAtDate, date("2026-03-05T23:00:00Z"))
     }
 
+    func testReconcileAdvancesWhenServerResetDateIsInThePast() throws {
+        let previousReset = date("2026-03-05T18:00:00Z")
+        let previous = usageResponse(
+            fiveHour: UsageBucket(utilization: 100.0, resetsAt: iso(previousReset))
+        )
+        // Server returned the old (now past) reset date instead of nil
+        let current = usageResponse(
+            fiveHour: UsageBucket(utilization: 2.0, resetsAt: iso(previousReset))
+        )
+
+        let reconciled = current.reconciled(
+            with: previous,
+            now: date("2026-03-05T18:05:00Z")
+        )
+
+        XCTAssertEqual(reconciled.fiveHour?.resetsAtDate, date("2026-03-05T23:00:00Z"))
+    }
+
     func testReconcilePreservesValidServerReset() throws {
         let previous = usageResponse(
             fiveHour: UsageBucket(utilization: 100.0, resetsAt: "2026-03-05T18:00:00Z")

@@ -56,19 +56,17 @@ struct UsageBucket: Codable {
     }
 
     func reconciled(with previous: UsageBucket?, resetInterval: TimeInterval, now: Date) -> UsageBucket {
-        guard resetsAtDate == nil else { return self }
-        guard let previousDate = previous?.resetsAtDate else { return self }
+        // If the API returned a valid future reset date, use it as-is
+        if let date = resetsAtDate, date > now {
+            return self
+        }
 
-        let resolvedDate = Self.nextResetDate(
-            from: previousDate,
-            resetInterval: resetInterval,
-            now: now
-        )
+        // resetsAt is nil, unparseable, or stale (past) — compute the next reset
+        let anchor = resetsAtDate ?? previous?.resetsAtDate
+        guard let anchor else { return self }
 
-        return UsageBucket(
-            utilization: utilization,
-            resetsAt: Self.resetString(from: resolvedDate)
-        )
+        let resolvedDate = Self.nextResetDate(from: anchor, resetInterval: resetInterval, now: now)
+        return UsageBucket(utilization: utilization, resetsAt: Self.resetString(from: resolvedDate))
     }
 
     private static func parseResetDate(from value: String?) -> Date? {
