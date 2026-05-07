@@ -39,18 +39,6 @@ A tiny macOS menu bar app that shows your Claude API usage at a glance. Click it
 3. Launch the app from `/Applications`
 4. macOS may require right-click → **Open** on first launch
 
-### Homebrew
-
-```sh
-brew install --cask Blimp-Labs/claude-usage-bar/claude-usage-bar
-```
-
-The tap is updated automatically on each release. To upgrade:
-
-```sh
-brew upgrade --cask claude-usage-bar
-```
-
 ### Build from source
 
 Requires Xcode 15+ / Swift 5.9+ and macOS 14 (Sonoma) or later.
@@ -124,7 +112,6 @@ One-time repo setup:
 
 1. Enable GitHub Pages and set the source to `GitHub Actions`.
 2. Add a repository Actions secret named `SPARKLE_PRIVATE_KEY`.
-3. Add a repository Actions secret named `HOMEBREW_TAP_TOKEN` (a fine-grained PAT with Contents: Read and Write on `Blimp-Labs/homebrew-claude-usage-bar`).
 
 Local source builds intentionally ship with Sparkle disabled unless `SU_FEED_URL` is injected during packaging. This prevents forks and local builds from auto-updating to upstream binaries.
 
